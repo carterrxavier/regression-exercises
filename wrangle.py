@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from env import host, user ,password
-from pydataset import data
+from sklearn.model_selection import train_test_split
 import os
 
 
@@ -47,3 +47,16 @@ def clean_telco_tenure(df):
     
     return df
     
+def telco_split(df):
+    '''
+    This function take in the telco_churn data acquired,
+    performs a split into 3 dataframes. one for train, one for validating and one for testing 
+    Returns train, validate, and test dfs.
+    '''
+    train_validate, test = train_test_split(df, test_size=.2, 
+                                        random_state=765)
+    train, validate = train_test_split(train_validate, test_size=.3, 
+                                   random_state=231)
+    
+    print('train{},validate{},test{}'.format(train.shape, validate.shape, test.shape))
+    return train, validate, test
