@@ -47,7 +47,46 @@ def clean_telco_tenure(df):
     
     return df
     
-def telco_split(df):
+
+def get_zillow_data():
+    '''
+    This function gets the zillow data needed to predict single unit properities.
+    '''
+    file_name = 'zillow.csv'
+    if os.path.isfile(file_name):
+        return pd.read_csv(file_name)
+    
+    else:
+        query =  '''
+        select bedroomcnt,bathroomcnt,calculatedfinishedsquarefeet,taxvaluedollarcnt,yearbuilt,taxamount, fips, propertylandusetypeid from properties_2017
+        where propertylandusetypeid = 261
+        '''
+    df = pd.read_sql(query, get_connection('zillow'))  
+    
+    #replace white space with nulls
+    df = df.replace(r'^\s*$', np.NaN, regex=True)
+    
+    df.to_csv(file_name, index = False)
+    return df
+
+
+def clean_zillow_data(zillow_df):
+    '''
+    this function cleans data for zillow data 
+    '''
+    zillow_df = zillow_df.dropna(axis=0, subset=['bedroomcnt'])
+    zillow_df = zillow_df.dropna(how='all')
+    zillow_df = zillow_df.dropna(axis=0, subset=['calculatedfinishedsquarefeet'])
+    zillow_df['taxvaluedollarcnt'].fillna(zillow_df['taxvaluedollarcnt'].mean(), inplace = True)
+    zillow_df['taxamount'].fillna(zillow_df['taxamount'].mean(), inplace = True)
+    mode = zillow_df[(zillow_df['yearbuilt'] > 1947) & (zillow_df['yearbuilt'] <= 1957)].yearbuilt.mode()
+    zillow_df['yearbuilt'].fillna(value=mode[0], inplace = True)
+    
+    return zillow_df
+    
+  
+    
+def split_for_model(df):
     '''
     This function take in the telco_churn data acquired,
     performs a split into 3 dataframes. one for train, one for validating and one for testing 
@@ -60,3 +99,5 @@ def telco_split(df):
     
     print('train{},validate{},test{}'.format(train.shape, validate.shape, test.shape))
     return train, validate, test
+
+
