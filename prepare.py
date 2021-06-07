@@ -7,9 +7,9 @@ def scale_telco_data(train, validate, test, scale_type = None):
     '''
     returns scaled data of specified type into data frame
     '''
-    X_train = train.drop(columns='customer_id')
-    X_validate = validate.drop(columns='customer_id')
-    X_test = test.drop(columns='customer_id')
+    X_train = train
+    X_validate = validate
+    X_test = test
     
     min_max_scaler = MinMaxScaler()
     robust_scaler = RobustScaler()
