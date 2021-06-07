@@ -29,7 +29,7 @@ def month_to_year(df):
 def plot_cat_and_cont(cat_var, con_var, df):
     for i in cat_var:
         for j in con_var:
-            plt.figure(figsize=(20,20))
+            plt.figure(figsize=(10,5))
             plt.subplot(131)
             sns.swarmplot(x=i, y=j, data=df)
             plt.subplot(132)
