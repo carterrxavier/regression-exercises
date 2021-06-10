@@ -7,7 +7,6 @@ from sklearn.feature_selection import SelectKBest, f_regression, RFE
 
 
 
-
 def get_risiduals(df ,act, pred):
     df['risiduals'] = act - pred
     df['baseline_risiduals'] = act - act.mean()
@@ -41,24 +40,30 @@ def regression_errors(y, yhat):
     
     return sse, mse, rmse, ess, tss, r_2
 
-def baseline_mean_errors(y):
-    sse_baseline = ((y-y.mean()) ** 2).sum()
-    mse_baseline = sse_baseline / y.shape[0]
-    rmse_baseline = math.sqrt(mse_baseline)
+def baseline_errors(y, measure="Mean"):
+    if measure == "Mean":
+        sse_baseline = ((y-y.mean()) ** 2).sum()
+        mse_baseline = sse_baseline / y.shape[0]
+        rmse_baseline = math.sqrt(mse_baseline)
+    else:
+        sse_baseline = ((y-y.median()) ** 2).sum()
+        mse_baseline = sse_baseline / y.shape[0]
+        rmse_baseline = math.sqrt(mse_baseline)
+        
     
     return sse_baseline, mse_baseline, rmse_baseline
 
 def better_than_baseline(y, yhat):
     return regression_errors(y,yhat)[2] < baseline_mean_errors(y)[2]
 
-def select_kbest(X,y, top=2):
+def select_kbest(X,y, top=3):
     f_selector = SelectKBest(f_regression, k =top)
     f_selector.fit(X,y)
     result = f_selector.get_support()
     f_feature = X.loc[:,result].columns.tolist()
     return f_feature
 
-def select_rfe(X,y,n_features_to_select,model_type = LinearRegression()):
+def select_rfe(X,y, n_features_to_select = 3,model_type = LinearRegression()):
     lm = model_type
     rfe = RFE(lm, n_features_to_select)
     X_rfe = rfe.fit_transform(X,y)
