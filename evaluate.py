@@ -2,6 +2,10 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+from sklearn.linear_model import LinearRegression
+from sklearn.feature_selection import SelectKBest, f_regression, RFE
+
+
 
 
 def get_risiduals(df ,act, pred):
@@ -46,6 +50,23 @@ def baseline_mean_errors(y):
 
 def better_than_baseline(y, yhat):
     return regression_errors(y,yhat)[2] < baseline_mean_errors(y)[2]
+
+def select_kbest(X,y, top=2):
+    f_selector = SelectKBest(f_regression, k =top)
+    f_selector.fit(X,y)
+    result = f_selector.get_support()
+    f_feature = X.loc[:,result].columns.tolist()
+    return f_feature
+
+def select_rfe(X,y,n_features_to_select,model_type = LinearRegression()):
+    lm = model_type
+    rfe = RFE(lm, n_features_to_select)
+    X_rfe = rfe.fit_transform(X,y)
+    mask = rfe.support_
+    rfe_feautures = X.loc[:,mask].columns
+    return rfe_feautures
+    
+    
     
 
     
